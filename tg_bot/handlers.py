@@ -4,7 +4,7 @@ from .config import BotConfig
 
 from tg_bot import app
 import requests
-from .services import WeatherService, WeatherServiceException
+from .weather_service import WeatherService, WeatherServiceException
 from pprint import pprint
 
 BOT_TOKEN = BotConfig.BOT_TOKEN
@@ -84,4 +84,6 @@ class CallbackHandler(TelegramHandler):
         except WeatherServiceException as wse:
             self.send_message(str(wse))
         else:
-            self.send_message(json.dumps(weather))
+            # self.send_message(json.dumps(weather))
+            self.send_message(weather)
+
