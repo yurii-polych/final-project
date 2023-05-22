@@ -37,8 +37,8 @@ class WeatherService:
         current_res = res.json().get('current_weather')
 
         answer = f"Current weather: \n" \
-               f"temperature - {current_res.get('temperature')} degree(s) Celsius, \n" \
-               f"windspeed - {current_res.get('windspeed')} hm/h, \n" \
-               f"winddirection - {current_res.get('winddirection')} degree(s)."
+                 f"temperature - {current_res.get('temperature')} degree(s) Celsius, \n" \
+                 f"windspeed - {current_res.get('windspeed')} hm/h, \n" \
+                 f"winddirection - {current_res.get('winddirection')} degree(s)."
 
         return answer
