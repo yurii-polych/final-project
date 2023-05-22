@@ -4,11 +4,12 @@ from .config import BotConfig
 
 from tg_bot import app
 import requests
-from .services import WeatherService, WeatherServiceException
+from .weather_service import WeatherService, WeatherServiceException
 from pprint import pprint
 
 BOT_TOKEN = BotConfig.BOT_TOKEN
 TG_BASE_URL = BotConfig.TG_BASE_URL
+IS_SEARCHING = False
 
 
 class User:
@@ -44,33 +45,39 @@ class MessageHandler(TelegramHandler):
     def __init__(self, data):
         self.user = User(**data.get('from'))
         self.text = data.get('text')
-        # print(self.user)
-        # print(self.user.id)
 
     def handle(self):
-        match self.text.split():
-            case 'weather', city:
+        global IS_SEARCHING
+
+        match IS_SEARCHING:
+            case True:
+                IS_SEARCHING = False
                 try:
-                    geo_data = WeatherService.get_geo_data(city)
+                    geo_data = WeatherService.get_geo_data(self.text)
                 except WeatherServiceException as wse:
                     self.send_message(str(wse))
                 else:
                     # pprint(geo_data)
                     buttons = []
                     for item in geo_data:
-                        test_button = {
+                        button = {
                             'text': f'{item.get("name")} - {item.get("country_code")}',
                             'callback_data': json.dumps({
                                 'lat': item.get('latitude'),
                                 'lon': item.get('longitude')
-                                })
-                            }
-                        buttons.append([test_button])
+                            })
+                        }
+                        buttons.append([button])
 
                     markup = {
                         'inline_keyboard': buttons
-                        }
+                    }
                     self.send_markup_message('Choose a city from a list:', markup)
+
+        match self.text:
+            case '/weather':
+                self.send_message('Enter the name of the city: ')
+                IS_SEARCHING = True
 
 
 class CallbackHandler(TelegramHandler):
@@ -84,4 +91,5 @@ class CallbackHandler(TelegramHandler):
         except WeatherServiceException as wse:
             self.send_message(str(wse))
         else:
-            self.send_message(json.dumps(weather))
+            # self.send_message(json.dumps(weather))
+            self.send_message(weather)
