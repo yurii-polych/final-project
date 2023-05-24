@@ -3,9 +3,12 @@ import os
 from .config import BotConfig
 
 from tg_bot import app
+from tg_bot import db
 import requests
 from .weather_service import WeatherService, WeatherServiceException
 from pprint import pprint
+
+from .models import UserModel
 
 BOT_TOKEN = BotConfig.BOT_TOKEN
 TG_BASE_URL = BotConfig.TG_BASE_URL
@@ -19,7 +22,17 @@ class User:
         self.is_bot = is_bot
         self.language_code = language_code
         self.last_name = last_name
-        self.user_name = username
+        self.username = username
+
+    def register_new_user_in_db(self):
+        new_user = UserModel(
+            user_id=self.id,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            username=self.username
+        )
+        db.session.add(new_user)
+        db.session.commit()
 
 
 class TelegramHandler:
@@ -78,6 +91,21 @@ class MessageHandler(TelegramHandler):
             case '/weather':
                 self.send_message('Enter the name of the city: ')
                 IS_SEARCHING = True
+
+            case '/start':
+                try:
+                    user_id = UserModel.query.filter_by(user_id=self.user.id).first()
+                    if user_id is None:
+                        self.user.register_new_user_in_db()
+                        start_speach = "Hello, I am NailsMaster Bot. \n" \
+                                       "Please select a command from the 'Menu' button."
+                        self.send_message(start_speach)
+                    else:
+                        message_to_existed_user = "I'm glad you're back. \n" \
+                                                  "Please select a command from the 'Menu' button."
+                        self.send_message(message_to_existed_user)
+                except Exception as e:
+                    self.send_message(str(e))
 
 
 class CallbackHandler(TelegramHandler):
