@@ -2,8 +2,7 @@ import json
 import os
 from .config import BotConfig
 
-from tg_bot import app
-from tg_bot import db
+from tg_bot import app, db
 import requests
 from .weather_service import WeatherService, WeatherServiceException
 from pprint import pprint
@@ -12,7 +11,6 @@ from .models import UserModel
 
 BOT_TOKEN = BotConfig.BOT_TOKEN
 TG_BASE_URL = BotConfig.TG_BASE_URL
-IS_SEARCHING = False
 
 
 class User:
@@ -32,6 +30,19 @@ class User:
             username=self.username
         )
         db.session.add(new_user)
+        db.session.commit()
+
+    def get_data_from_is_searching(self):
+        result = db.session.execute(db.select(UserModel).filter_by(user_id=self.id)).scalar().is_searching
+        return result
+
+    def get_user_from_db(self):
+        result = UserModel.query.filter_by(user_id=self.id).first()
+        return result
+
+    def set_searching_data(self, boolean):
+        user = self.get_user_from_db()
+        user.is_searching = boolean
         db.session.commit()
 
 
@@ -60,11 +71,9 @@ class MessageHandler(TelegramHandler):
         self.text = data.get('text')
 
     def handle(self):
-        global IS_SEARCHING
-
-        match IS_SEARCHING:
+        match self.user.get_data_from_is_searching():
             case True:
-                IS_SEARCHING = False
+                self.user.set_searching_data(False)
                 try:
                     geo_data = WeatherService.get_geo_data(self.text)
                 except WeatherServiceException as wse:
@@ -86,11 +95,12 @@ class MessageHandler(TelegramHandler):
                         'inline_keyboard': buttons
                     }
                     self.send_markup_message('Choose a city from a list:', markup)
-
         match self.text:
             case '/weather':
+                self.user.get_data_from_is_searching()
+
                 self.send_message('Enter the name of the city: ')
-                IS_SEARCHING = True
+                self.user.set_searching_data(True)
 
             case '/start':
                 try:
