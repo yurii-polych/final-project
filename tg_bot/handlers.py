@@ -40,10 +40,11 @@ class User:
         result = UserModel.query.filter_by(user_id=self.id).first()
         return result
 
-    def set_searching_data(self, boolean):
+    def set_is_searching(self, boolean):
         user = self.get_user_from_db()
         user.is_searching = boolean
         db.session.commit()
+        app.logger.info(f'Value {boolean} was set.')
 
 
 class TelegramHandler:
@@ -73,7 +74,7 @@ class MessageHandler(TelegramHandler):
     def handle(self):
         match self.user.get_data_from_is_searching():
             case True:
-                self.user.set_searching_data(False)
+                self.user.set_is_searching(False)
                 try:
                     geo_data = WeatherService.get_geo_data(self.text)
                 except WeatherServiceException as wse:
@@ -100,7 +101,7 @@ class MessageHandler(TelegramHandler):
                 self.user.get_data_from_is_searching()
 
                 self.send_message('Enter the name of the city: ')
-                self.user.set_searching_data(True)
+                self.user.set_is_searching(True)
 
             case '/start':
                 try:
