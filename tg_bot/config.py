@@ -10,3 +10,5 @@ class BotConfig:
     HOST = os.getenv('HOST')
     BOT_TOKEN = os.getenv('BOT_TOKEN')
     TG_BASE_URL = os.getenv('TG_BASE_URL')
+
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
