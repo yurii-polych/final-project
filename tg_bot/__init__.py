@@ -1,9 +1,10 @@
 from flask import Flask
 from logging.config import dictConfig
-from .config import BotConfig
+from .config import BotConfig, set_bot_commands
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+
 app = Flask(__name__)
 
 dictConfig({
@@ -21,6 +22,8 @@ dictConfig({
         'handlers': ['wsgi']
     }
 })
+
+set_bot_commands()
 
 app.config.from_object(BotConfig)
 

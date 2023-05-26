@@ -88,7 +88,6 @@ class MessageHandler(TelegramHandler):
     def handle(self):
         match self.get_last_message():
             case '/weather':
-                self.get_last_message()
                 self.delete_last_message()
                 try:
                     geo_data = WeatherService.get_geo_data(self.text)

@@ -11,5 +11,3 @@ class UserModel(db.Model):
     username = db.Column(db.String(30))
     last_message = db.Column(db.String(255), default=False)
     created = db.Column(db.DateTime, default=datetime.now())
-
-
