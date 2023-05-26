@@ -1,5 +1,4 @@
 import json
-import os
 from .config import BotConfig
 
 from tg_bot import app, db
@@ -32,18 +31,10 @@ class User:
         db.session.add(new_user)
         db.session.commit()
 
-    def get_data_from_is_searching(self):
-        result = db.session.execute(db.select(UserModel).filter_by(user_id=self.id)).scalar().is_searching
-        return result
-
     def get_user_from_db(self):
-        result = UserModel.query.filter_by(user_id=self.id).first()
-        return result
-
-    def set_searching_data(self, boolean):
-        user = self.get_user_from_db()
-        user.is_searching = boolean
-        db.session.commit()
+        user_info = db.session.execute(db.select(UserModel).filter_by(user_id=self.id)).scalar()
+        app.logger.info(f'Got user info from DB.')
+        return user_info
 
 
 class TelegramHandler:
@@ -70,10 +61,35 @@ class MessageHandler(TelegramHandler):
         self.user = User(**data.get('from'))
         self.text = data.get('text')
 
+    def save_last_message(self):
+        user_info = self.user.get_user_from_db()
+        user_info.last_message = self.text
+        db.session.commit()
+        app.logger.info('The last message has been saved.')
+
+    def get_last_message(self):
+        user_info = self.user.get_user_from_db()
+        last_message = user_info.last_message
+        app.logger.info(f'Got last message: {last_message}')
+        return last_message
+
+    def undate_last_message(self):
+        last_message = self.get_last_message()
+        self.user.get_user_from_db().last_message = f'{last_message} {self.text}'
+        db.session.commit()
+        app.logger.info('Last message has been updated.')
+
+    def delete_last_message(self):
+        user_info = self.user.get_user_from_db()
+        user_info.last_message = False
+        db.session.commit()
+        app.logger.info('Last message has been deleted.')
+
     def handle(self):
-        match self.user.get_data_from_is_searching():
-            case True:
-                self.user.set_searching_data(False)
+        match self.get_last_message():
+            case '/weather':
+                self.get_last_message()
+                self.delete_last_message()
                 try:
                     geo_data = WeatherService.get_geo_data(self.text)
                 except WeatherServiceException as wse:
@@ -95,17 +111,12 @@ class MessageHandler(TelegramHandler):
                         'inline_keyboard': buttons
                     }
                     self.send_markup_message('Choose a city from a list:', markup)
+
         match self.text:
-            case '/weather':
-                self.user.get_data_from_is_searching()
-
-                self.send_message('Enter the name of the city: ')
-                self.user.set_searching_data(True)
-
             case '/start':
                 try:
-                    user_id = UserModel.query.filter_by(user_id=self.user.id).first()
-                    if user_id is None:
+                    user_info = UserModel.query.filter_by(user_id=self.user.id).first()
+                    if user_info is None:
                         self.user.register_new_user_in_db()
                         start_speach = "Hello, I am NailsMaster Bot. \n" \
                                        "Please select a command from the 'Menu' button."
@@ -116,6 +127,21 @@ class MessageHandler(TelegramHandler):
                         self.send_message(message_to_existed_user)
                 except Exception as e:
                     self.send_message(str(e))
+
+            case '/commands':
+                self.send_message('List of the commands.')
+
+            case '/weather':
+                self.save_last_message()
+                self.send_message('Enter the name of the city: ')
+
+            case '/test':
+                # self.save_last_message()
+                self.get_last_message()
+                # self.delete_last_message()
+                # self.undate_last_message()
+
+                self.send_message('This is message from test case.')
 
 
 class CallbackHandler(TelegramHandler):
