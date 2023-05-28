@@ -4,6 +4,7 @@ from .config import BotConfig
 from tg_bot import app, db
 import requests
 from .weather_service import WeatherService, WeatherServiceException
+from .phonebook_service import Phonebook, PhonebookException
 from pprint import pprint
 
 from .models import UserModel
@@ -111,6 +112,33 @@ class MessageHandler(TelegramHandler):
                     }
                     self.send_markup_message('Choose a city from a list:', markup)
 
+            case '/add_contact':  # TODO: add validation
+                self.delete_last_message()
+                name, phone_number = self.text.split(' - ')
+                Phonebook.add_contact(name, phone_number, self.user.id)
+                self.send_message('Contact has been added.')
+
+            case '/get_contact':  # TODO: handle exception
+                self.delete_last_message()
+                name = self.text
+                try:
+                    contacts = Phonebook.get_contact(name, self.user.id)
+                    if contacts:
+                        for contact in contacts:
+                            self.send_message(f'{contact.name} - {contact.phone_number}')
+                    else:
+                        self.send_message(f'No contact matching that query was found in the phone book.')
+                except PhonebookException as e:
+                    self.send_message(str(e))
+                app.logger.info('Got the contact.')
+
+            case '/delete_contact':
+                self.delete_last_message()
+                name = self.text
+                Phonebook().delete_contact(name, self.user.id)
+                self.send_message('Contact has been deleted successfully.')
+                app.logger.info('Contact has been deleted.')
+
         match self.text:
             case '/start':
                 try:
@@ -128,11 +156,29 @@ class MessageHandler(TelegramHandler):
                     self.send_message(str(e))
 
             case '/commands':
-                self.send_message('List of the commands.')
+                self.send_message('/commands \n'
+                                  '/weather \n'
+                                  '/add_contact \n'
+                                  '/get_contact \n'
+                                  '/delete_contact')
 
             case '/weather':
                 self.save_last_message()
                 self.send_message('Enter the name of the city: ')
+
+            case '/add_contact':
+                self.save_last_message()
+                self.send_message(
+                    'Please enter the contact details in the following format: name - phone number.'
+                )
+
+            case '/get_contact':
+                self.save_last_message()
+                self.send_message('Please enter the name of the contact.')
+
+            case '/delete_contact':
+                self.save_last_message()
+                self.send_message('Please enter the name of the contact you want to delete.')
 
             case '/test':
                 # self.save_last_message()
