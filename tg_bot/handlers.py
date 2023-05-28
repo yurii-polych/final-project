@@ -70,9 +70,10 @@ class MessageHandler(TelegramHandler):
 
     def get_last_message(self):
         user_info = self.user.get_user_from_db()
-        last_message = user_info.last_message
-        app.logger.info(f'Got last message: {last_message}')
-        return last_message
+        if user_info:
+            last_message = user_info.last_message
+            app.logger.info(f'Got last message: {last_message}')
+            return last_message
 
     def undate_last_message(self):
         last_message = self.get_last_message()
