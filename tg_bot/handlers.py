@@ -115,9 +115,12 @@ class MessageHandler(TelegramHandler):
 
             case '/add_contact':  # TODO: add validation
                 self.delete_last_message()
-                name, phone_number = self.text.split(' - ')
-                Phonebook.add_contact(name, phone_number, self.user.id)
-                self.send_message('Contact has been added.')
+                try:
+                    name, phone_number = self.text.split(' - ')
+                    Phonebook.add_contact(name, phone_number, self.user.id)
+                    self.send_message('Contact has been added.')
+                except Exception:
+                    self.send_message('Contact has not been added.')
 
             case '/get_contact':  # TODO: handle exception
                 self.delete_last_message()

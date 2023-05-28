@@ -45,4 +45,3 @@ class Phonebook:
             db.session.commit()
         else:
             return 'No contact matching that query was found in the phone book.'
-
