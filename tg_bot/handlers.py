@@ -75,7 +75,7 @@ class MessageHandler(TelegramHandler):
             app.logger.info(f'Got last message: {last_message}')
             return last_message
 
-    def undate_last_message(self):
+    def update_last_message(self):
         last_message = self.get_last_message()
         self.user.get_user_from_db().last_message = f'{last_message} {self.text}'
         db.session.commit()
@@ -113,16 +113,22 @@ class MessageHandler(TelegramHandler):
                     }
                     self.send_markup_message('Choose a city from a list:', markup)
 
-            case '/add_contact':  # TODO: add validation
+            case '/add_contact':
                 self.delete_last_message()
                 try:
+                    if not ' - ' in self.text:
+                        raise self.send_message('Please use " - " separator.')
                     name, phone_number = self.text.split(' - ')
+                    if not Phonebook.validate_phone_number(phone_number):
+                        raise self.send_message('Invalid phone number. \n'
+                                                'The phone number should be in the format +XXXXXXXXXXXX or XXXXXXXXXXX.')
                     Phonebook.add_contact(name, phone_number, self.user.id)
-                    self.send_message('Contact has been added.')
                 except Exception:
-                    self.send_message('Contact has not been added.')
+                    self.send_message('Contact has not been added. Please enter correct data.')
+                else:
+                    self.send_message('Contact has been added.')
 
-            case '/get_contact':  # TODO: handle exception
+            case '/get_contact':
                 self.delete_last_message()
                 name = self.text
                 try:
@@ -134,14 +140,20 @@ class MessageHandler(TelegramHandler):
                         self.send_message(f'No contact matching that query was found in the phone book.')
                 except PhonebookException as e:
                     self.send_message(str(e))
-                app.logger.info('Got the contact.')
+                else:
+                    app.logger.info('Got the contact.')
 
             case '/delete_contact':
                 self.delete_last_message()
                 name = self.text
-                Phonebook().delete_contact(name, self.user.id)
-                self.send_message('Contact has been deleted successfully.')
-                app.logger.info('Contact has been deleted.')
+                try:
+                    Phonebook().delete_contact(name, self.user.id)
+                except Exception as e:
+                    app.logger.error('Contact has not been deleted.')
+                    self.send_message(str(e))
+                else:
+                    self.send_message('Contact has been deleted successfully.')
+                    app.logger.info('Contact has been deleted.')
 
         match self.text:
             case '/start':
