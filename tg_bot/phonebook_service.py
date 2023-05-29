@@ -1,5 +1,6 @@
 from tg_bot import db
 from .models import PhonebookModel
+from re import fullmatch
 
 
 class PhonebookException(Exception):
@@ -45,3 +46,7 @@ class Phonebook:
             db.session.commit()
         else:
             return 'No contact matching that query was found in the phone book.'
+
+    @staticmethod
+    def validate_phone_number(phone_number):
+        return fullmatch(r'(\+?\d\d\d|0)\d{9}$', phone_number)
