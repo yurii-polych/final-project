@@ -41,11 +41,11 @@ class Phonebook:
 
     def delete_contact(self, name, user_id):
         contact = self.get_one_contact(name, user_id)
-        if contact:
+        if contact is None:
+            raise Exception('No matches found.')
+        else:
             db.session.delete(contact)
             db.session.commit()
-        else:
-            return 'No contact matching that query was found in the phone book.'
 
     @staticmethod
     def validate_phone_number(phone_number):

@@ -148,9 +148,9 @@ class MessageHandler(TelegramHandler):
                 name = self.text
                 try:
                     Phonebook().delete_contact(name, self.user.id)
-                except PhonebookException:
+                except Exception as e:
                     app.logger.error('Contact has not been deleted.')
-                    self.send_message('No contact matching that query was found in the phone book.')
+                    self.send_message(str(e))
                 else:
                     self.send_message('Contact has been deleted successfully.')
                     app.logger.info('Contact has been deleted.')
