@@ -1,10 +1,13 @@
 import json
+from time import sleep
+
 from .config import BotConfig
 
 from tg_bot import app, db
 import requests
 from .weather_service import WeatherService, WeatherServiceException
 from .phonebook_service import Phonebook, PhonebookException
+from .memes_service import MemesService
 from pprint import pprint
 
 from .models import UserModel
@@ -55,6 +58,13 @@ class TelegramHandler:
             'text': text
         }
         requests.post(f'{TG_BASE_URL}{BOT_TOKEN}/sendMessage', json=data)
+
+    def send_image(self, url):
+        data = {
+            "chat_id": f"{self.user.id}",
+            "photo": url
+        }
+        requests.post(f'{TG_BASE_URL}{BOT_TOKEN}/sendPhoto', json=data)
 
 
 class MessageHandler(TelegramHandler):
@@ -174,6 +184,7 @@ class MessageHandler(TelegramHandler):
             case '/commands':
                 self.send_message('/commands \n'
                                   '/weather \n'
+                                  '/memes \n'
                                   '/add_contact \n'
                                   '/get_contact \n'
                                   '/delete_contact')
@@ -196,13 +207,14 @@ class MessageHandler(TelegramHandler):
                 self.save_last_message()
                 self.send_message('Please enter the name of the contact you want to delete.')
 
-            case '/test':
-                # self.save_last_message()
-                self.get_last_message()
-                # self.delete_last_message()
-                # self.undate_last_message()
-
-                self.send_message('This is message from test case.')
+            case '/memes':
+                try:
+                    memes = MemesService().get_urls_from_response()
+                    for meme in memes:
+                        self.send_image(meme)
+                        sleep(4)
+                except Exception as e:
+                    self.send_message(str(e))
 
 
 class CallbackHandler(TelegramHandler):
