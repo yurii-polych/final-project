@@ -1,13 +1,13 @@
 import json
-from .config import BotConfig
-
-from tg_bot import app, db
 import requests
-from .weather_service import WeatherService, WeatherServiceException
-from .phonebook_service import Phonebook, PhonebookException
 from pprint import pprint
 
+from tg_bot import app, db, BotConfig
+from .weather_service import WeatherService, WeatherServiceException
+from .phonebook_service import Phonebook, PhonebookException
+from .memes_service import MemesService
 from .models import UserModel
+
 
 BOT_TOKEN = BotConfig.BOT_TOKEN
 TG_BASE_URL = BotConfig.TG_BASE_URL
@@ -56,6 +56,13 @@ class TelegramHandler:
         }
         requests.post(f'{TG_BASE_URL}{BOT_TOKEN}/sendMessage', json=data)
 
+    def send_image(self, url):
+        data = {
+            "chat_id": f"{self.user.id}",
+            "photo": url
+        }
+        requests.post(f'{TG_BASE_URL}{BOT_TOKEN}/sendPhoto', json=data)
+
 
 class MessageHandler(TelegramHandler):
     def __init__(self, data):
@@ -64,9 +71,10 @@ class MessageHandler(TelegramHandler):
 
     def save_last_message(self):
         user_info = self.user.get_user_from_db()
-        user_info.last_message = self.text
-        db.session.commit()
-        app.logger.info('The last message has been saved.')
+        if user_info:
+            user_info.last_message = self.text
+            db.session.commit()
+            app.logger.info('The last message has been saved.')
 
     def get_last_message(self):
         user_info = self.user.get_user_from_db()
@@ -174,6 +182,7 @@ class MessageHandler(TelegramHandler):
             case '/commands':
                 self.send_message('/commands \n'
                                   '/weather \n'
+                                  '/memes \n'
                                   '/add_contact \n'
                                   '/get_contact \n'
                                   '/delete_contact')
@@ -196,13 +205,13 @@ class MessageHandler(TelegramHandler):
                 self.save_last_message()
                 self.send_message('Please enter the name of the contact you want to delete.')
 
-            case '/test':
-                # self.save_last_message()
-                self.get_last_message()
-                # self.delete_last_message()
-                # self.undate_last_message()
-
-                self.send_message('This is message from test case.')
+            case '/memes':
+                self.send_message('IT memes are comming.')
+                memes = MemesService().get_urls_from_response()
+                for meme in memes:
+                    self.send_image(meme)
+                app.logger.info('Got all memes.')
+                self.send_message('I hope you enjoyed it. Now you can continue working with the bot.')
 
 
 class CallbackHandler(TelegramHandler):
