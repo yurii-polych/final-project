@@ -1,16 +1,13 @@
 import json
-from time import sleep
-
-from .config import BotConfig
-
-from tg_bot import app, db
 import requests
+from pprint import pprint
+
+from tg_bot import app, db, BotConfig
 from .weather_service import WeatherService, WeatherServiceException
 from .phonebook_service import Phonebook, PhonebookException
 from .memes_service import MemesService
-from pprint import pprint
-
 from .models import UserModel
+
 
 BOT_TOKEN = BotConfig.BOT_TOKEN
 TG_BASE_URL = BotConfig.TG_BASE_URL
@@ -74,9 +71,10 @@ class MessageHandler(TelegramHandler):
 
     def save_last_message(self):
         user_info = self.user.get_user_from_db()
-        user_info.last_message = self.text
-        db.session.commit()
-        app.logger.info('The last message has been saved.')
+        if user_info:
+            user_info.last_message = self.text
+            db.session.commit()
+            app.logger.info('The last message has been saved.')
 
     def get_last_message(self):
         user_info = self.user.get_user_from_db()
@@ -208,13 +206,12 @@ class MessageHandler(TelegramHandler):
                 self.send_message('Please enter the name of the contact you want to delete.')
 
             case '/memes':
-                try:
-                    memes = MemesService().get_urls_from_response()
-                    for meme in memes:
-                        self.send_image(meme)
-                        sleep(4)
-                except Exception as e:
-                    self.send_message(str(e))
+                self.send_message('IT memes are comming.')
+                memes = MemesService().get_urls_from_response()
+                for meme in memes:
+                    self.send_image(meme)
+                app.logger.info('Got all memes.')
+                self.send_message('I hope you enjoyed it. Now you can continue working with the bot.')
 
 
 class CallbackHandler(TelegramHandler):
