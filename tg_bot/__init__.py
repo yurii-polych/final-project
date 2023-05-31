@@ -1,6 +1,6 @@
 from flask import Flask
 from logging.config import dictConfig
-from .config import BotConfig, set_bot_commands
+from .config import BotConfig, set_bot_commands, set_webhook
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -23,6 +23,7 @@ dictConfig({
     }
 })
 
+set_webhook()
 set_bot_commands()
 
 app.config.from_object(BotConfig)
