@@ -2,11 +2,14 @@ import os
 from dotenv import load_dotenv
 import requests
 
-
+# Load the environment variables from the .env file in the current directory.
 load_dotenv()
 
 
 class BotConfig:
+    """
+    This is a class that stores configuration variables for a bot. The variables are:
+    """
     DEBUG = os.getenv('DEBUG')
     HOST = os.getenv('HOST')
     BOT_TOKEN = os.getenv('BOT_TOKEN')
@@ -31,6 +34,10 @@ commands_list = [
 
 
 def set_webhook():
+    """
+    Set the webhook for the Telegram bot to the specified URL.
+    @return None.
+    """
     url = BotConfig.WEBHOOK
     data = {"url": url}
     response = requests.post(f'{BotConfig.TG_BASE_URL}{BotConfig.BOT_TOKEN}/setWebhook', json=data)
@@ -41,6 +48,12 @@ def set_webhook():
 
 
 def set_bot_commands():
+    """
+    This function sets the commands for a Telegram bot using the Telegram Bot API. It sends a POST request 
+    to the Telegram API endpoint to set the commands for the bot. The commands are passed as a JSON object 
+    in the request body. If the request is successful, it prints a success message, otherwise it prints an error message.
+    @return None
+    """
     data = {"commands": commands_list}
     response = requests.post(f'{BotConfig.TG_BASE_URL}{BotConfig.BOT_TOKEN}/setMyCommands', json=data)
     if response.ok:

@@ -14,6 +14,10 @@ TG_BASE_URL = BotConfig.TG_BASE_URL
 
 
 class User:
+    """
+    This code defines a User class with an __init__ method that initializes the user's attributes such as first name, id, is_bot, language_code, last_name, and username. 
+    """
+    
     def __init__(self, first_name, id, is_bot, language_code, last_name=None, username=None):
         self.first_name = first_name
         self.id = id
@@ -23,6 +27,11 @@ class User:
         self.username = username
 
     def register_new_user_in_db(self):
+        """
+        This method registers a new user in the database by creating a new UserModel object with the user's information, 
+        adding it to the database session, and committing the changes to the database.
+        @return None
+        """
         new_user = UserModel(
             user_id=self.id,
             first_name=self.first_name,
@@ -33,15 +42,30 @@ class User:
         db.session.commit()
 
     def get_user_from_db(self):
+        """
+        This method retrieves user information from the database based on the user ID.
+        @param self - the instance of the class calling the method
+        @return user_info - the user information retrieved from the database
+        """
         user_info = db.session.execute(db.select(UserModel).filter_by(user_id=self.id)).scalar()
         app.logger.info(f'Got user info from DB.')
         return user_info
 
 
 class TelegramHandler:
+    """
+    This is a class that handles sending messages and images to a user via Telegram API. 
+    """
     user = None
 
     def send_markup_message(self, text, markup):
+        """
+        This method sends a message with markup to a user via Telegram API.
+        @param self - the instance of the class
+        @param text - the text message to be sent
+        @param markup - the markup to be sent with the message
+        @return None
+        """
         data = {
             'chat_id': self.user.id,
             'text': text,
@@ -50,6 +74,12 @@ class TelegramHandler:
         requests.post(f'{TG_BASE_URL}{BOT_TOKEN}/sendMessage', json=data)
 
     def send_message(self, text):
+        """
+        This method sends a message to a user via Telegram Bot API.
+        @param self - the instance of the class
+        @param text - the message to be sent
+        @return None
+        """
         data = {
             'chat_id': self.user.id,
             'text': text
@@ -57,6 +87,12 @@ class TelegramHandler:
         requests.post(f'{TG_BASE_URL}{BOT_TOKEN}/sendMessage', json=data)
 
     def send_image(self, url):
+        """
+        Given a URL, send an image to a user via Telegram.
+        @param self - the instance of the class
+        @param url - the URL of the image to be sent
+        @return None
+        """
         data = {
             "chat_id": f"{self.user.id}",
             "photo": url
@@ -65,11 +101,23 @@ class TelegramHandler:
 
 
 class MessageHandler(TelegramHandler):
+    """
+    This is a class that handles incoming messages from Telegram. 
+    It has an `__init__` method that takes in data and initializes the user and text attributes. 
+    It also has a `save_last_message` method that saves the last message sent by the user to the database. 
+    """
     def __init__(self, data):
         self.user = User(**data.get('from'))
         self.text = data.get('text')
 
     def save_last_message(self):
+        """
+        This method saves the last message sent by the user to the database.
+        It retrieves the user information from the database, updates the last message
+        field with the current message, and commits the changes to the database.
+        @param self - the instance of the class
+        @return None
+        """
         user_info = self.user.get_user_from_db()
         if user_info:
             user_info.last_message = self.text
@@ -77,6 +125,12 @@ class MessageHandler(TelegramHandler):
             app.logger.info('The last message has been saved.')
 
     def get_last_message(self):
+        """
+        This method retrieves the last message sent by the user from the database.
+        It first retrieves the user information from the database and then returns the last message sent by the user.
+        If the user information is not found in the database, it returns None.
+        @return The last message sent by the user.
+        """
         user_info = self.user.get_user_from_db()
         if user_info:
             last_message = user_info.last_message
@@ -84,20 +138,46 @@ class MessageHandler(TelegramHandler):
             return last_message
 
     def update_last_message(self):
+        """
+        This method updates the last message of a user in the database with the current message. 
+        It first retrieves the last message from the database using the `get_last_message()` method. 
+        It then appends the current message to the last message and updates the user's `last_message` field in the database. 
+        Finally, it commits the changes to the database and logs that the last message has been updated.
+        @return None
+        """
         last_message = self.get_last_message()
         self.user.get_user_from_db().last_message = f'{last_message} {self.text}'
         db.session.commit()
         app.logger.info('Last message has been updated.')
 
     def delete_last_message(self):
+        """
+        This method deletes the last message sent by the user. 
+        It does this by retrieving the user's information from the database, setting the `last_message` attribute to `False`, 
+        and then committing the changes to the database. 
+        Finally, it logs a message indicating that the last message has been deleted.
+        @param self - the instance of the class
+        @return None
+        """
         user_info = self.user.get_user_from_db()
         user_info.last_message = False
         db.session.commit()
         app.logger.info('Last message has been deleted.')
 
     def handle(self):
+        """
+        This is a method that handles incoming messages. It checks the last message received and performs different actions based on the message type.
+        @return None
+        """
         match self.get_last_message():
             case '/weather':
+                """
+                This code is part of a chatbot that responds to user messages. 
+                If the last message matches '/weather', it will delete the last message and attempt to retrieve geo data from a weather service. 
+                If the service returns an exception, the bot will send the exception message to the user. 
+                Otherwise, it will create a list of buttons for each city in the geo data and send a message to the user with the list of buttons to choose from.
+                @return None
+                """
                 self.delete_last_message()
                 try:
                     geo_data = WeatherService.get_geo_data(self.text)
@@ -165,6 +245,9 @@ class MessageHandler(TelegramHandler):
 
         match self.text:
             case '/start':
+                """
+                This code appears to be a part of a chatbot's response to user input. 
+                """
                 try:
                     user_info = UserModel.query.filter_by(user_id=self.user.id).first()
                     if user_info is None:
@@ -215,6 +298,12 @@ class MessageHandler(TelegramHandler):
 
 
 class CallbackHandler(TelegramHandler):
+    """
+    This is a class that handles callbacks from a Telegram bot. 
+    It takes in data from the callback and initializes a `User` object and a `callback_data` dictionary. 
+    It then attempts to get the current weather using the `WeatherService` class and the `callback_data` dictionary. 
+    If there is an exception, it sends a message with the error. If there is no exception, it sends a message with the current weather.
+    """
     def __init__(self, data):
         self.user = User(**data.get('from'))
         self.callback_data = json.loads(data.get('data'))
