@@ -2,7 +2,8 @@ from tg_bot import app
 from tg_bot.config import BotConfig
 
 
-app.run(
-    port=BotConfig.HOST,
-    debug=BotConfig.DEBUG
-)
+if __name__ == '__main__':
+    app.run(
+        port=BotConfig.HOST,
+        debug=BotConfig.DEBUG
+    )
