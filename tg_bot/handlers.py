@@ -169,7 +169,7 @@ class MessageHandler(TelegramHandler):
                     user_info = UserModel.query.filter_by(user_id=self.user.id).first()
                     if user_info is None:
                         self.user.register_new_user_in_db()
-                        start_speach = "Hello, I am NailsMaster Bot. \n" \
+                        start_speach = "Hello, I am Meme Bot. \n" \
                                        "Please select a command from the 'Menu' button."
                         self.send_message(start_speach)
                     else:
