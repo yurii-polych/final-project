@@ -11,6 +11,7 @@ class BotConfig:
     HOST = os.getenv('HOST')
     BOT_TOKEN = os.getenv('BOT_TOKEN')
     TG_BASE_URL = os.getenv('TG_BASE_URL')
+    WEBHOOK = os.getenv('WEBHOOK')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
 
     MEMES_URL = os.getenv('MEMES_URL')
@@ -29,10 +30,20 @@ commands_list = [
 ]
 
 
+def set_webhook():
+    url = BotConfig.WEBHOOK
+    data = {"url": url}
+    response = requests.post(f'{BotConfig.TG_BASE_URL}{BotConfig.BOT_TOKEN}/setWebhook', json=data)
+    if response.ok:
+        print('The webhook has been successfully set.')
+    else:
+        print('Failed to set webhook.')
+
+
 def set_bot_commands():
     data = {"commands": commands_list}
     response = requests.post(f'{BotConfig.TG_BASE_URL}{BotConfig.BOT_TOKEN}/setMyCommands', json=data)
     if response.ok:
-        print('Commands set successfully!')
+        print('The commands have been successfully set.')
     else:
         print('Failed to set commands:', response.text)
