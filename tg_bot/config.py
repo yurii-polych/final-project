@@ -36,7 +36,7 @@ commands_list = [
 def set_webhook():
     """
     Set the webhook for the Telegram bot to the specified URL.
-    @return None.
+    :return None.
     """
     url = BotConfig.WEBHOOK
     data = {"url": url}
@@ -51,8 +51,9 @@ def set_bot_commands():
     """
     This function sets the commands for a Telegram bot using the Telegram Bot API. It sends a POST request 
     to the Telegram API endpoint to set the commands for the bot. The commands are passed as a JSON object 
-    in the request body. If the request is successful, it prints a success message, otherwise it prints an error message.
-    @return None
+    in the request body. If the request is successful, it prints a success message, otherwise it prints an
+    error message.
+    :return None
     """
     data = {"commands": commands_list}
     response = requests.post(f'{BotConfig.TG_BASE_URL}{BotConfig.BOT_TOKEN}/setMyCommands', json=data)
