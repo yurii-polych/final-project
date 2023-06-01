@@ -26,12 +26,12 @@ dictConfig({
     }
 })
 
+# Load the configuration settings for the Flask app from the BotConfig object.
+app.config.from_object(BotConfig)
+
 set_webhook()
 
 set_bot_commands()
-
-# Load the configuration settings for the Flask app from the BotConfig object.
-app.config.from_object(BotConfig)
 
 
 db.init_app(app)
