@@ -4,7 +4,7 @@ import requests
 from tg_bot import app, db, BotConfig
 from .weather_service import WeatherService, WeatherServiceException
 from .phonebook_service import Phonebook, PhonebookException
-from .memes_service import MemesService
+from .memes_service import MemesService, MemesServiceException
 from .models import UserModel
 
 
@@ -293,11 +293,15 @@ class MessageHandler(TelegramHandler):
 
             case '/memes':
                 self.send_message('IT memes are comming.')
-                memes = MemesService().get_urls_from_response()
-                for meme in memes:
-                    self.send_image(meme)
-                app.logger.info('Got all memes.')
-                self.send_message('I hope you enjoyed it. Now you can continue working with the bot.')
+                try:
+                    memes = MemesService().get_urls_from_response()
+                except WeatherServiceException as e:
+                    self.send_message(str(e))
+                else:
+                    for meme in memes:
+                        self.send_image(meme)
+                    app.logger.info('Got all memes.')
+                    self.send_message('I hope you enjoyed it. Now you can continue working with the bot.')
 
 
 class CallbackHandler(TelegramHandler):

@@ -6,6 +6,10 @@ MEMES_KEY = BotConfig.MEMES_KEY
 MEMES_HOST = BotConfig.MEMES_HOST
 
 
+class MemesServiceException(Exception):
+    pass
+
+
 class MemesService:
     """
     This class provides a service to retrieve memes from a remote API. It has two methods:
