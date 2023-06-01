@@ -11,12 +11,6 @@ db = SQLAlchemy()
 app = Flask(__name__)
 
 dictConfig({
-    """
-    This code sets up a logging configuration for a Flask application. 
-    It specifies a formatter that includes the time, log level, module name, and message. 
-    It also sets up a handler that logs to the Flask error stream. 
-    Finally, it sets the root logger level to INFO and assigns the handler to it.
-    """
     'version': 1,
     'formatters': {'default': {
         'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
