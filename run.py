@@ -8,6 +8,6 @@ if __name__ == '__main__':
     If it is, it runs the Flask application with the specified port and debug settings from the `BotConfig` class. 
     """
     app.run(
-        port=BotConfig.HOST,
+        port=BotConfig.PORT,
         debug=BotConfig.DEBUG
     )

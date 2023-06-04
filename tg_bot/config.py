@@ -12,7 +12,7 @@ class BotConfig:
     It also has a method to set the bot commands.
     """
     DEBUG = os.getenv('DEBUG')
-    HOST = os.getenv('HOST')
+    PORT = os.getenv('PORT')
     BOT_TOKEN = os.getenv('BOT_TOKEN')
     TG_BASE_URL = os.getenv('TG_BASE_URL')
     WEBHOOK = os.getenv('WEBHOOK')
