@@ -24,7 +24,7 @@ class BotConfig:
 
     COMMANDS_LIST = [
         {"command": "commands", "description": "Get list of commands"},
-        {"command": "memes", "description": "Get 12 memes"},
+        {"command": "memes", "description": "Get meme"},
         {"command": "weather", "description": "Get current weather"},
         {"command": "add_contact", "description": "Add a contact to the phonebook"},
         {"command": "get_contact", "description": "Get a contact from the phonebook"},
