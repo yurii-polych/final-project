@@ -292,16 +292,14 @@ class MessageHandler(TelegramHandler):
                 self.send_message('Please enter the name of the contact you want to delete.')
 
             case '/memes':
-                self.send_message('IT memes are comming.')
+                self.send_message('IT meme is coming.')
                 try:
-                    memes = MemesService().get_urls_from_response()
-                except WeatherServiceException as e:
+                    meme = MemesService().get_one_url()
+                except MemesServiceException as e:
                     self.send_message(str(e))
                 else:
-                    for meme in memes:
-                        self.send_image(meme)
-                    app.logger.info('Got all memes.')
-                    self.send_message('I hope you enjoyed it. Now you can continue working with the bot.')
+                    self.send_image(meme)
+                    app.logger.info('Got meme.')
 
 
 class CallbackHandler(TelegramHandler):

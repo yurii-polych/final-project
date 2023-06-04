@@ -18,6 +18,8 @@ class MemesService:
     2. `get_urls_from_response()`: This method calls `get_response_from_memes_service()` to get the response
         from the remote API, extracts the URLs of the memes from the response, and returns them as a list.
     """
+    URLS = []
+
     @staticmethod
     def get_response_from_memes_service():
         url = MEMES_URL
@@ -29,3 +31,10 @@ class MemesService:
         response = self.get_response_from_memes_service()
         urls = [item.get('image') for item in response]
         return urls
+
+    def get_one_url(self):
+        if not self.URLS:
+            urls = self.get_urls_from_response()
+            self.URLS += urls
+        one_url = self.URLS.pop()
+        return one_url
