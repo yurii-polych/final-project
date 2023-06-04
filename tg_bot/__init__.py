@@ -1,6 +1,6 @@
 from flask import Flask
 from logging.config import dictConfig
-from .config import BotConfig, set_bot_commands, set_webhook
+from .config import BotConfig
 from flask_sqlalchemy import SQLAlchemy
 
 # This code initializes a SQLAlchemy object, which is a toolkit and ORM (Object-Relational Mapping) for Python. 
@@ -29,10 +29,9 @@ dictConfig({
 # Load the configuration settings for the Flask app from the BotConfig object.
 app.config.from_object(BotConfig)
 
-set_webhook()
+BotConfig.set_webhook()
 
-set_bot_commands()
-
+BotConfig.set_bot_commands()
 
 db.init_app(app)
 
