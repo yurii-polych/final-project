@@ -3,10 +3,8 @@ from logging.config import dictConfig
 from .config import BotConfig
 from flask_sqlalchemy import SQLAlchemy
 
-# This code initializes a SQLAlchemy object, which is a toolkit and ORM (Object-Relational Mapping) for Python. 
-# It provides a set of high-level API to interact with relational databases.
+
 db = SQLAlchemy()
-    
 
 app = Flask(__name__)
 
