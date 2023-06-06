@@ -16,7 +16,13 @@ class BotConfig:
     BOT_TOKEN = os.getenv('BOT_TOKEN')
     TG_BASE_URL = os.getenv('TG_BASE_URL')
     WEBHOOK = os.getenv('WEBHOOK')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
+
+    POSTGRES_URL = os.getenv('POSTGRES_URL')
+    POSTGRES_USER = os.getenv('POSTGRES_USER')
+    POSTGRES_PW = os.getenv('POSTGRES_PW')
+    POSTGRES_DB = os.getenv('POSTGRES_DB')
+
+    SQLALCHEMY_DATABASE_URI = f'postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PW}@{POSTGRES_URL}/{POSTGRES_DB}'
 
     MEMES_URL = os.getenv('MEMES_URL')
     MEMES_KEY = os.getenv('MEMES_KEY')

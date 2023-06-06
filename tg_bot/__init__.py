@@ -4,9 +4,12 @@ from .config import BotConfig
 from flask_sqlalchemy import SQLAlchemy
 
 
-db = SQLAlchemy()
-
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = BotConfig.SQLALCHEMY_DATABASE_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # silence the deprecation warning
+
+db = SQLAlchemy(app)
 
 dictConfig({
     'version': 1,
@@ -30,8 +33,6 @@ app.config.from_object(BotConfig)
 BotConfig.set_webhook()
 
 BotConfig.set_bot_commands()
-
-db.init_app(app)
 
 
 from .views import *
