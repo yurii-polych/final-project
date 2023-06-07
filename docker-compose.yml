@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  tg_bot:
+    build: "."
+    command: gunicorn --bind 0.0.0.0:4242 tg_bot:app
+    restart: always
+    ports:
+      - "4242:4242"
+    depends_on:
+      - database
+    env_file:
+      - .env
+    networks:
+      - nginx_network
+      - database_network
+
+  database:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    networks:
+      - database_network
+
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    networks:
+      - nginx_network
+    depends_on:
+      - tg_bot
+
+networks:
+  nginx_network:
+    name: nginx_network
+    driver: bridge
+  database_network:
+    name: database_network
+    driver: bridge
+
+volumes:
+  postgres_data:
