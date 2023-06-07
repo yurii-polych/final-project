@@ -9,5 +9,5 @@ if __name__ == '__main__':
     """
     app.run(
         port=BotConfig.PORT,
-        debug=BotConfig.DEBUG
+        debug=False,
     )

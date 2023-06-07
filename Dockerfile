@@ -10,6 +10,6 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-EXPOSE 4242
+EXPOSE 10000
 
 CMD python run.py
