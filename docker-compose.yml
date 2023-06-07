@@ -3,10 +3,10 @@ version: "3.8"
 services:
   tg_bot:
     build: "."
-    command: gunicorn --bind 0.0.0.0:4242 tg_bot:app
+    command: gunicorn --bind 0.0.0.0:10000 tg_bot:app
     restart: always
     ports:
-      - "4242:4242"
+      - "10000:10000"
     depends_on:
       - database
     env_file:
