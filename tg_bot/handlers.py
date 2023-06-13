@@ -301,6 +301,15 @@ class MessageHandler(TelegramHandler):
                     self.send_image(meme)
                     app.logger.info('Got meme.')
 
+            case _:
+                self.send_message('Unrecognized command. \nPlease select a command from the list: \n'
+                                  '/commands \n'
+                                  '/weather \n'
+                                  '/memes \n'
+                                  '/add_contact \n'
+                                  '/get_contact \n'
+                                  '/delete_contact')
+
 
 class CallbackHandler(TelegramHandler):
     """

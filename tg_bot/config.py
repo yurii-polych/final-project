@@ -19,10 +19,10 @@ class BotConfig:
 
     POSTGRES_URL = os.getenv('POSTGRES_URL')
     POSTGRES_USER = os.getenv('POSTGRES_USER')
-    POSTGRES_PW = os.getenv('POSTGRES_PW')
+    POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
     POSTGRES_DB = os.getenv('POSTGRES_DB')
 
-    SQLALCHEMY_DATABASE_URI = f'postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PW}@{POSTGRES_URL}/{POSTGRES_DB}'
+    SQLALCHEMY_DATABASE_URI = f'postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_URL}/{POSTGRES_DB}'
 
     MEMES_URL = os.getenv('MEMES_URL')
     MEMES_KEY = os.getenv('MEMES_KEY')
