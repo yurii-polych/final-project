@@ -29,6 +29,7 @@ class BotConfig:
     MEMES_HOST = os.getenv('MEMES_HOST')
 
     COMMANDS_LIST = [
+        {"command": "start", "description": "Start using the service"},
         {"command": "commands", "description": "Get list of commands"},
         {"command": "memes", "description": "Get meme"},
         {"command": "weather", "description": "Get current weather"},
