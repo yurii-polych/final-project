@@ -266,7 +266,8 @@ class MessageHandler(TelegramHandler):
                     self.send_message(str(e))
 
             case '/commands':
-                self.send_message('/commands \n'
+                self.send_message('/start \n'
+                                  '/commands \n'
                                   '/weather \n'
                                   '/memes \n'
                                   '/add_contact \n'
